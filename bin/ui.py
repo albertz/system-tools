@@ -25,7 +25,7 @@ class Completer:
 
 WordsReprMaxLen = 40
 
-def userInput(words, prompt=""):
+def userInputByChoice(words, prompt=""):
 	readline.set_completer(Completer(words).complete)
 	words_repr = ", ".join(words)
 	if len(words_repr) > WordsReprMaxLen:
@@ -40,6 +40,16 @@ def confirm(question):
 		s = raw_input("%s Press enter to confirm or Ctrl+C otherwise." % question)
 		if s == "": return
 		print("Error: Don't type anything, just press enter.")
+
+def userInput(prompt, testFunc):
+	while True:
+		s = raw_input(prompt)
+		try:
+			assert testFunc(s)
+		except Exception as e:
+			print("Error: %s" % e)
+		else:
+			return s
 
 # This is here in `ui` because it returns always some string
 # which is only intended for a user and does not mean anything

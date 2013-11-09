@@ -14,6 +14,11 @@ def main(argv):
 	shellcmd("git add README.md")
 	shellcmd("git commit -m 'initial commit'")
 
+	server = config.get_private_server()
+	projdir = config.get_private_remote_projectdir()
+	shellcmd("ssh %s mkdir %s/%s.git" % (server, projdir, projname))
+	shellcmd("rsync -a .git/* %s:%s/%s.git/" % (server, projdir, projname))
+
 if __name__ == "__main__":
 	main(sys.argv)
 
