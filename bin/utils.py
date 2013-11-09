@@ -51,8 +51,7 @@ def test_remotedir(remotedir):
 	if o.port:
 		args += ["-p", str(o.port)]
 	assert o.path != ""
-	assert o.path[0] == "/"
-	path = o.path[1:]
+	path = o.path
 	args += ["stat", path]
 	args += [">/dev/null"]
 
@@ -60,3 +59,16 @@ def test_remotedir(remotedir):
 	res = subprocess.call(" ".join(args), shell=True)
 	assert res == 0
 	return True
+
+def get_homeremotedir(server):
+	import subprocess
+	return subprocess.check_output(["ssh", server, "pwd"]).strip("\n")
+
+def get_ssh_fileurl(server, remotedir, homeremotedir=None):
+	assert remotedir != ""
+	if remotedir[0] != "/":
+		if not homeremotedir:
+			homeremotedir = get_homeremotedir(server)
+			assert homeremotedir[0:1] == "/"
+		remotedir = homeremotedir + "/" + remotedir
+	return "ssh://%s%s" % (server, remotedir)

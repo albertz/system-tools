@@ -15,9 +15,10 @@ def main(argv):
 	shellcmd("git commit -m 'initial commit'")
 
 	server = config.get_private_server()
-	projdir = config.get_private_remote_projectdir()
-	shellcmd("ssh %s mkdir %s/%s.git" % (server, projdir, projname))
-	shellcmd("rsync -a .git/* %s:%s/%s.git/" % (server, projdir, projname))
+	projdir = config.get_private_remote_projectdir() + "/" + projname + ".git"
+	shellcmd("ssh %s 'mkdir %s && cd %s && git init --bare'" % (server, projdir, projdir))
+	shellcmd("git remote add origin %s" % get_ssh_fileurl(server, projdir))
+	shellcmd("git push -u origin master")
 
 if __name__ == "__main__":
 	main(sys.argv)
