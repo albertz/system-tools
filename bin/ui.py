@@ -46,16 +46,23 @@ def confirm(question):
 # otherwise.
 def getFuncName(func):
 	if hasattr(func, "func_name"):
-		return func
+		return func.func_name
+	if hasattr(func, "__name__"):
+		return func.__name__
 	return str(func)
+
+def userRepr(arg):
+	import inspect
+	if inspect.isroutine(arg):
+		return getFuncName(arg)
+	return repr(arg)
 
 class ConfirmByUserDeco(object):
 	def __init__(self, func):
 		self.func = func
 	def __call__(self, *args, **kwargs):
-		confirm("%s(%s, %s)?" % (
+		confirm("%s(%s)?" % (
 			getFuncName(self.func),
-			", ".join(map(repr, args)),
-			", ".join(["%s=%r" % item for item in kwargs.items()])
+			", ".join(map(userRepr, args) + ["%s=%r" % item for item in kwargs.items()])
 		))
 		return self.func(*args, **kwargs)
