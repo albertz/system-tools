@@ -1,17 +1,10 @@
 
 import os, sys
-# http://stackoverflow.com/questions/24826005/how-to-make-from-import-utils-work
-#if __package__ is None:
-	#__package__ = "%s.%s" % (os.path.basename(os.path.dirname(os.path.abspath(__file__))), os.path.splitext(os.path.basename(os.path.abspath(__file__)))[0])
-#	__package__ = os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-	#sys.modules[__package__] = __import__(".")
-	
 from . import ui
-#import ui
 
 # It's bad practice to have an import-sideeffect.
 # However, these are anyway only small helper tools and this is useful.
-import better_exchook
+from . import better_exchook
 better_exchook.install()
 
 
