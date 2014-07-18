@@ -35,7 +35,12 @@ def shellcmd(cmd):
 def pycmd(func, *args, **kwargs):
 	return func(*args, **kwargs)
 
-
+def sysexec(*args):
+	import subprocess
+	res = subprocess.call(args, shell=False)
+	if res != 0: raise ShellError
+	
+	
 def test_server(servername):
 	import subprocess
 	res = subprocess.call("ping -c 1 %s >/dev/null" % servername, shell=True)
