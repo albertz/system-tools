@@ -1,5 +1,6 @@
 
 import os, sys
+# http://stackoverflow.com/questions/24826005/how-to-make-from-import-utils-work
 #if __package__ is None:
 	#__package__ = "%s.%s" % (os.path.basename(os.path.dirname(os.path.abspath(__file__))), os.path.splitext(os.path.basename(os.path.abspath(__file__)))[0])
 #	__package__ = os.path.basename(os.path.dirname(os.path.abspath(__file__)))

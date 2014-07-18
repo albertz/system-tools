@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys
+# http://stackoverflow.com/questions/24826005/how-to-make-from-import-utils-work
 __package__ = os.path.basename(os.path.dirname(os.path.abspath(__file__)))
 sys.path += [os.path.dirname(os.path.dirname(os.path.abspath(__file__)))]
 __import__(__package__)
