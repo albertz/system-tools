@@ -60,6 +60,11 @@ def test_remotedir(remotedir):
 	assert res == 0
 	return True
 
+# This is just like `assert`, except that it will not be optimized away.
+def test(value, msg=None):
+	if not value:
+		raise AssertionError(*((msg,) if msg else ()))
+	
 def get_homeremotedir(server):
 	import subprocess
 	return subprocess.check_output(["ssh", server, "pwd"]).strip("\n")
