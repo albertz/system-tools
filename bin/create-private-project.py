@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
+import os, sys
+
+if __package__ is None:
+	__package__ = "%s.%s" % (os.path.basename(os.path.dirname(os.path.abspath(__file__))), os.path.splitext(os.path.basename(os.path.abspath(__file__)))[0])
+
 from utils import *
 import config
-import os, sys
 
 
 def main(argv):
