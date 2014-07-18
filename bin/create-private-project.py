@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import os, sys
+__package__ = os.path.basename(os.path.dirname(os.path.abspath(__file__)))
+sys.path += [os.path.dirname(os.path.dirname(os.path.abspath(__file__)))]
+__import__(__package__)
 
-if __package__ is None:
-	__package__ = "%s.%s" % (os.path.basename(os.path.dirname(os.path.abspath(__file__))), os.path.splitext(os.path.basename(os.path.abspath(__file__)))[0])
-
-from utils import *
+from .utils import *
 import config
 
 
