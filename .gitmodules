@@ -1,3 +1,6 @@
 [submodule "helpers"]
 	path = helpers
 	url = git@github.com:albertz/helpers.git
+[submodule "py_better_exchook"]
+	path = py_better_exchook
+	url = git@github.com:albertz/py_better_exchook.git

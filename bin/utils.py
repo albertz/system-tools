@@ -1,6 +1,12 @@
 
 import ui
 
+# It's bad practice to have an import-sideeffect.
+# However, these are anyway only small helper tools and this is useful.
+import better_exchook
+better_exchook.install()
+
+
 class CachedFunc0Deco(object):
 	def __init__(self, func):
 		self.func = func
