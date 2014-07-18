@@ -1,5 +1,5 @@
 
-import ui
+from . import ui
 
 # It's bad practice to have an import-sideeffect.
 # However, these are anyway only small helper tools and this is useful.
@@ -24,7 +24,7 @@ def betterRepr(o):
 	if isinstance(o, tuple):
 		return "(" + ", ".join(map(betterRepr, o)) + ")"
 	if isinstance(o, dict):
-		return "{\n" + "".join(map(lambda (k,v): betterRepr(k) + ": " + betterRepr(v) + ",\n", sorted(o.iteritems()))) + "}"
+		return "{\n" + "".join([betterRepr(k) + ": " + betterRepr(v) + ",\n" for (k,v) in sorted(o.iteritems())]) + "}"
 	# fallback
 	return repr(o)
 
