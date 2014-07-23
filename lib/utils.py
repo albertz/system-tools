@@ -78,6 +78,22 @@ def git_isDirty():
 	if r == 1: return True
 	test(False)
 
+	
+def utc_datetime_str():
+	from datetime import datetime
+	return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def make_symlink(src, dst):
+	test(src)
+	if src[:1] != "/":
+		abssrc = os.path.join(os.path.dirname(dst), src)
+		test(os.path.exists(abssrc), "the link destination %s does not exists" % src)
+	if os.path.islink(dst):
+		curlink = os.readlink(dst)
+		test(curlink == src, "existing missmatching symlink: %s -> %s" % (dst, curlink))
+	else:
+		os.symlink(src, dst)
 
 
 def test_server(servername):
