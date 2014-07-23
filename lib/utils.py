@@ -86,9 +86,8 @@ def utc_datetime_str():
 
 def make_symlink(src, dst):
 	test(src)
-	if src[:1] != "/":
-		abssrc = os.path.join(os.path.dirname(dst), src)
-		test(os.path.exists(abssrc), "the link destination %s does not exists" % src)
+	abssrc = os.path.join(os.path.dirname(dst), src) if src[:1] != "/" else src
+	test(os.path.exists(abssrc), "the link destination %s does not exists" % src)
 	if os.path.islink(dst):
 		curlink = os.readlink(dst)
 		test(curlink == src, "existing missmatching symlink: %s -> %s" % (dst, curlink))
