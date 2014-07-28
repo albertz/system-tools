@@ -78,7 +78,10 @@ def git_isDirty():
 	if r == 1: return True
 	test(False)
 
-	
+def git_commitDate(commit="HEAD"):
+	return sysexecOut("git", "show", "-s", "--format=%ci", commit).strip()[:-6].replace(":", "").replace("-", "").replace(" ", ".")
+
+
 def utc_datetime_str():
 	from datetime import datetime
 	return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
@@ -93,6 +96,14 @@ def make_symlink(src, dst):
 		test(curlink == src, "existing missmatching symlink: %s -> %s" % (dst, curlink))
 	else:
 		os.symlink(src, dst)
+
+def make_dir(dst, recursive=False):
+	if not os.path.isdir(dst):
+		print("Directory %r does not exist, create..." % dst)
+		if recursive:
+			os.makedirs(dst)
+		else:
+			os.mkdir(dst)
 
 
 def test_server(servername):
