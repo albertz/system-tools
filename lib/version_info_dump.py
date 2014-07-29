@@ -69,8 +69,9 @@ def dump():
 		# File does not exist yet or so.
 		tools = {}
 	tools[info["name"]] = info
+	r = betterRepr(tools)
 	f = open(filename, "w")
-	f.write(betterRepr(tools))
+	f.write(r)
 	f.write("\n")
 	f.close()
 	
