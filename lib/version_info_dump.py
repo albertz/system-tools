@@ -40,7 +40,7 @@ def collectInfo():
 	scriptfile = os.path.realpath(scriptfile)
 	scriptfile = os.path.abspath(scriptfile)
 	test(os.path.isfile(scriptfile))
-	info["file"] = scriptfile
+	info["file"] = filenameRepr(scriptfile)
 	info["name"] = scriptname
 	scriptdir = os.path.dirname(scriptfile)
 	
@@ -53,10 +53,10 @@ def collectInfo():
 		info["git-commit"] = gitCommit
 		info["git-isDirty"] = gitIsDirty
 		info["git-date"] = gitDate
-		info["git-dir"] = gitdir
+		info["git-dir"] = filenameRepr(gitdir)
 	
 	if not gitdir or gitIsDirty:
-		info["file-changeDate"] = sysexecOut("ls", "-la", scriptfile).strip()
+		info["file-changeDate"] = sysexecOut("ls", "-la", os.path.basename(scriptfile), cwd=scriptdir).strip()
 
 	return info
 
@@ -64,20 +64,27 @@ def dump():
 	info = collectInfo()
 	cwd = os.getcwd()
 	filename = cwd + "/versioninfo"
+	t = ""
 	try:
-		tools = eval(open(filename).read())
-		test(type(tools) is dict)
+		t = open(filename).read()
 	except IOError:
 		# File does not exist yet or so.
+		pass
+	if t:
+		tools = eval(t)
+		test(type(tools) is dict)
+	else:
 		tools = {}
 	tools[info["name"]] = info
 	r = "# Version info of tools called from this dir.\n"
 	r += "# Ref: " + __file__ + "\n"
 	r += betterRepr(tools)
 	r += "\n"
-	f = open(filename, "w")
+	tmpfilename = filename + ".tmp" + tmp_filename()
+	f = open(tmpfilename, "w")
 	f.write(r)
 	f.close()
+	os.rename(tmpfilename, filename)
 	
 try:
 	dump()
