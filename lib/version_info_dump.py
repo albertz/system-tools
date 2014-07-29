@@ -60,6 +60,12 @@ def collectInfo():
 
 	return info
 
+def myFileRepr():
+	filename = os.path.realpath(__file__)
+	if filename.endswith(".pyc"):
+		filename = filename[:-1]
+	return filenameRepr(filename)
+	
 def dump():
 	info = collectInfo()
 	cwd = os.getcwd()
@@ -77,7 +83,7 @@ def dump():
 		tools = {}
 	tools[info["name"]] = info
 	r = "# Version info of tools called from this dir.\n"
-	r += "# Ref: " + __file__ + "\n"
+	r += "# Ref: " + myFileRepr() + "\n"
 	r += betterRepr(tools)
 	r += "\n"
 	tmpfilename = filename + ".tmp" + tmp_filename()
