@@ -8,6 +8,8 @@ The info is intended to stay mostly fixed, if you keep using the same tool
 with the same version.
 So, it is intended to keep the file also under local version control
 for documentation, so that you can later know what tool version you have used.
+This is why we don't include information like the current system time.
+For such purpose, use some local history script.
 """
 
 from .utils import *
