@@ -79,6 +79,6 @@ class ConfirmByUserDeco(object):
 	def __call__(self, *args, **kwargs):
 		confirm("%s(%s)?" % (
 			getFuncName(self.func),
-			", ".join(map(userRepr, args) + ["%s=%r" % item for item in kwargs.items()])
+			", ".join(list(map(userRepr, args)) + ["%s=%r" % item for item in kwargs.items()])
 		))
 		return self.func(*args, **kwargs)

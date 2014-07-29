@@ -34,52 +34,59 @@ class ShellError(Exception): pass
 
 @ui.ConfirmByUserDeco
 def shellcmd(cmd):
+	useshell=False
+	if type(cmd) is str: useshell=True
 	import subprocess
-	res = subprocess.call(cmd, shell=True)
+	res = subprocess.call(cmd, shell=useshell)
 	if res != 0: raise ShellError
 
 @ui.ConfirmByUserDeco
 def pycmd(func, *args, **kwargs):
 	return func(*args, **kwargs)
 
-def sysexec(*args):
+def sysexec(*args, **kwargs):
 	import subprocess
-	res = subprocess.call(args, shell=False)
+	res = subprocess.call(args, shell=False, **kwargs)
 	if res != 0: raise ShellError
 
-def sysexecOut(*args):
+def sysexecOut(*args, **kwargs):
 	from subprocess import Popen, PIPE
-	p = Popen(args, shell=False, stdin=PIPE, stdout=PIPE)
+	p = Popen(args, shell=False, stdin=PIPE, stdout=PIPE, **kwargs)
 	out, _ = p.communicate()
 	if p.returncode != 0: raise ShellError
 	out = out.decode("utf-8")
 	return out
 
-def sysexecRetCode(*args, valid=(0,1)):
+def sysexecRetCode(*args, **kwargs):
 	import subprocess
-	res = subprocess.call(args, shell=False)
+	res = subprocess.call(args, shell=False, **kwargs)
+	valid = kwargs.get("valid", (0,1))
 	if valid is not None:
 		if res not in valid: raise ShellError
 	return res
 
 
-def git_topLevelDir():
-	d = sysexecOut("git", "rev-parse", "--show-toplevel").strip()
+def git_topLevelDir(gitdir=None):
+	d = sysexecOut("git", "rev-parse", "--show-toplevel", cwd=gitdir).strip()
 	test(os.path.isdir(d))
 	test(os.path.isdir(d + "/.git"))
 	return d
 
-def git_headCommit():
-	return sysexecOut("git", "rev-parse", "--short", "HEAD").strip()
+def git_headCommit(gitdir=None):
+	return sysexecOut("git",  "rev-parse", "--short", "HEAD", cwd=gitdir).strip()
 
-def git_isDirty():
-	r = sysexecRetCode("git", "diff", "--no-ext-diff", "--quiet", "--exit-code")
+def git_commitRev(commit="HEAD", gitdir="."):
+	if commit is None: commit = "HEAD"
+	return sysexecOut("git", "rev-parse", "--short", commit, cwd=gitdir).strip()
+	
+def git_isDirty(gitdir="."):
+	r = sysexecRetCode("git", "diff", "--no-ext-diff", "--quiet", "--exit-code", cwd=gitdir)
 	if r == 0: return False
 	if r == 1: return True
 	test(False)
 
-def git_commitDate(commit="HEAD"):
-	return sysexecOut("git", "show", "-s", "--format=%ci", commit).strip()[:-6].replace(":", "").replace("-", "").replace(" ", ".")
+def git_commitDate(commit="HEAD", gitdir="."):
+	return sysexecOut("git", "show", "-s", "--format=%ci", commit, cwd=gitdir).strip()[:-6].replace(":", "").replace("-", "").replace(" ", ".")
 
 
 def utc_datetime_str():
