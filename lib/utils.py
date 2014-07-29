@@ -8,6 +8,9 @@ from . import better_exchook
 better_exchook.install()
 
 
+IsPython2 = sys.version_info[0] <= 2
+
+
 class CachedFunc0Deco(object):
 	def __init__(self, func):
 		self.func = func
@@ -19,15 +22,27 @@ class CachedFunc0Deco(object):
 
 def betterRepr(o):
 	"""
-	The main difference: this one is deterministic
-	The orig dict.__repr__ has the order undefined.
+	The main difference: this one is deterministic,
+	the orig dict.__repr__ has the order undefined.
+	Also, the output is minimally formatted.
+	Also, this tries to output such that we can import
+	with both Python 2+3.
 	"""
+	# Recursive structures.
 	if isinstance(o, list):
 		return "[" + ", ".join(map(betterRepr, o)) + "]"
 	if isinstance(o, tuple):
 		return "(" + ", ".join(map(betterRepr, o)) + ")"
+	# Sort dict. And format.
 	if isinstance(o, dict):
 		return "{\n" + "".join([betterRepr(k) + ": " + betterRepr(v) + ",\n" for (k,v) in sorted(o.iteritems())]) + "}"
+	# Handle Python2 unicode to not print prefix 'u'.
+	if IsPython2 and isinstance(o, unicode):
+		s = o.encode("utf8")
+		s = repr(s)
+		if "\\x" in s: # Simple hacky check: Do we need unicode?
+			return "%s.decode('utf8')" % s
+		return s
 	# fallback
 	return repr(o)
 
