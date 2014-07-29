@@ -144,22 +144,17 @@ def homesDir():
 	
 def filenameRepr(filename, currentUser=False):
 	"Some os.path.expanduser filename representation."
-
-	# Current user.
-	if currentUser:
-		homedir = os.path.expanduser("~/")
-		if filename.startswith(homedir):
-			return "~/" + filename[len(homedir):]
-	
-	# Some other user.
 	homesdir = os.path.realpath(homesDir()) + "/"
 	if filename.startswith(homesdir):
 		username = filename[len(homesdir):].split("/")[0]
-		prefix = "~%s/" % username
-		homedir = os.path.expanduser(prefix)
+		prefix = "~%s" % username
+		homedir = os.path.realpath(os.path.expanduser(prefix))
+		prefix += "/"
+		homedir += "/"
 		if filename.startswith(homedir):
+			if currentUser and username == os.getlogin():
+				return "~/" + filename[len(homedir):]
 			return prefix + filename[len(homedir):]
-	
 	# Fallback.
 	return filename
 	
