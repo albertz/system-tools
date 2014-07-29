@@ -71,10 +71,12 @@ def dump():
 		# File does not exist yet or so.
 		tools = {}
 	tools[info["name"]] = info
-	r = betterRepr(tools)
+	r = "# Version info of tools called from this dir.\n"
+	r += "# Ref: " + __file__ + "\n"
+	r += betterRepr(tools)
+	r += "\n"
 	f = open(filename, "w")
 	f.write(r)
-	f.write("\n")
 	f.close()
 	
 try:
