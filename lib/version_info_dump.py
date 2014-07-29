@@ -2,12 +2,12 @@
 NOTE: This module has sideeffects on import. This is by intention.
 
 It collects information about the tool (main script file) and dumps it
-in the current directory in "$toolname.versioninfo".
+in the current directory in a file called "versioninfo".
 
 The info is intended to stay mostly fixed, if you keep using the same tool
 with the same version.
-So, it is intended to keep the "*.versioninfo" also under version control,
-so that you can later know what tool version you have used.
+So, it is intended to keep the file also under local version control
+for documentation, so that you can later know what tool version you have used.
 """
 
 from .utils import *
@@ -61,9 +61,16 @@ def collectInfo():
 def dump():
 	info = collectInfo()
 	cwd = os.getcwd()
-	filename = cwd + "/" + info["name"] + ".versioninfo"
+	filename = cwd + "/versioninfo"
+	try:
+		tools = eval(open(filename).read())
+		test(type(tools) is dict)
+	except IOError:
+		# File does not exist yet or so.
+		tools = {}
+	tools[info["name"]] = info
 	f = open(filename, "w")
-	f.write(betterRepr(info))
+	f.write(betterRepr(tools))
 	f.write("\n")
 	f.close()
 	

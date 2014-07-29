@@ -18,8 +18,10 @@ class CachedFunc0Deco(object):
 
 
 def betterRepr(o):
-	# the main difference: this one is deterministic
-	# the orig dict.__repr__ has the order undefined.
+	"""
+	The main difference: this one is deterministic
+	The orig dict.__repr__ has the order undefined.
+	"""
 	if isinstance(o, list):
 		return "[" + ", ".join(map(betterRepr, o)) + "]"
 	if isinstance(o, tuple):
