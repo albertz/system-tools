@@ -35,7 +35,7 @@ def betterRepr(o):
 		return "(" + ", ".join(map(betterRepr, o)) + ")"
 	# Sort dict. And format.
 	if isinstance(o, dict):
-		return "{\n" + "".join([betterRepr(k) + ": " + betterRepr(v) + ",\n" for (k,v) in sorted(o.iteritems())]) + "}"
+		return "{\n" + "".join([betterRepr(k) + ": " + betterRepr(v) + ",\n" for (k,v) in sorted(o.items())]) + "}"
 	# Handle Python2 unicode to not print prefix 'u'.
 	if IsPython2 and isinstance(o, unicode):
 		s = o.encode("utf8")
