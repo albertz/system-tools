@@ -129,6 +129,40 @@ def make_dir(dst, recursive=False):
 		else:
 			os.mkdir(dst)
 
+def tmp_filename():
+	"Some random string which is usable as (part of) a temporary filename."
+	import uuid
+	return str(uuid.uuid4())
+
+def homesDir():
+	"Returns the base directory of user home directories."
+	if sys.platform == "darwin":
+		return "/Users"
+	else:
+		# POSIX-like fallback
+		return "/home"
+	
+def filenameRepr(filename, currentUser=False):
+	"Some os.path.expanduser filename representation."
+
+	# Current user.
+	if currentUser:
+		homedir = os.path.expanduser("~/")
+		if filename.startswith(homedir):
+			return "~/" + filename[len(homedir):]
+	
+	# Some other user.
+	homesdir = os.path.realpath(homesDir()) + "/"
+	if filename.startswith(homesdir):
+		username = filename[len(homesdir):].split("/")[0]
+		prefix = "~%s/" % username
+		homedir = os.path.expanduser(prefix)
+		if filename.startswith(homedir):
+			return prefix + filename[len(homedir):]
+	
+	# Fallback.
+	return filename
+	
 
 def test_server(servername):
 	import subprocess
