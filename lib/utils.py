@@ -110,6 +110,10 @@ def utc_datetime_str():
 	from datetime import datetime
 	return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
+def utc_datetime_filenamestr():
+	from datetime import datetime
+	return datetime.utcnow().strftime("%Y%m%d.%H%M%S")
+
 
 def make_symlink(src, dst):
 	test(src)
