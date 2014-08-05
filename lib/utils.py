@@ -47,15 +47,19 @@ def betterRepr(o):
 	return repr(o)
 
 
-class ShellError(Exception): pass
-
+class ShellError(Exception):
+	def __init__(self, res):
+		self.exitCode = res
+		assert self.exitCode != 0
+		super().__init__("exit code %i" % self.exitCode)
+		
 @ui.ConfirmByUserDeco
 def shellcmd(cmd):
 	useshell=False
 	if type(cmd) is str: useshell=True
 	import subprocess
 	res = subprocess.call(cmd, shell=useshell)
-	if res != 0: raise ShellError
+	if res != 0: raise ShellError(res)
 
 @ui.ConfirmByUserDeco
 def pycmd(func, *args, **kwargs):
@@ -64,13 +68,13 @@ def pycmd(func, *args, **kwargs):
 def sysexec(*args, **kwargs):
 	import subprocess
 	res = subprocess.call(args, shell=False, **kwargs)
-	if res != 0: raise ShellError
+	if res != 0: raise ShellError(res)
 
 def sysexecOut(*args, **kwargs):
 	from subprocess import Popen, PIPE
 	p = Popen(args, shell=False, stdin=PIPE, stdout=PIPE, **kwargs)
 	out, _ = p.communicate()
-	if p.returncode != 0: raise ShellError
+	if p.returncode != 0: raise ShellError(p.returncode)
 	out = out.decode("utf-8")
 	return out
 
@@ -79,7 +83,7 @@ def sysexecRetCode(*args, **kwargs):
 	res = subprocess.call(args, shell=False, **kwargs)
 	valid = kwargs.get("valid", (0,1))
 	if valid is not None:
-		if res not in valid: raise ShellError
+		if res not in valid: raise ShellError(res)
 	return res
 
 
