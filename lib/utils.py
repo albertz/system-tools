@@ -168,7 +168,7 @@ def filenameRepr(filename, currentUser=False):
 		prefix += "/"
 		homedir += "/"
 		if filename.startswith(homedir):
-			if currentUser and username == os.getlogin():
+			if currentUser and username == loginUsername():
 				return "~/" + filename[len(homedir):]
 			return prefix + filename[len(homedir):]
 	# Fallback.
