@@ -150,6 +150,14 @@ def homesDir():
 		# POSIX-like fallback
 		return "/home"
 	
+def loginUsername():
+	"""
+	Returns the username of the current user.
+	Use this as a replacement for os.getlogin().
+	"""
+	import pwd, os
+	return pwd.getpwuid(os.getuid())[0]
+	
 def filenameRepr(filename, currentUser=False):
 	"Some os.path.expanduser filename representation."
 	homesdir = os.path.realpath(homesDir()) + "/"
