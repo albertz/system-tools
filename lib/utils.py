@@ -4,8 +4,19 @@ from . import ui
 
 # It's bad practice to have an import-sideeffect.
 # However, these are anyway only small helper tools and this is useful.
+
 from . import better_exchook
-better_exchook.install()
+
+# Special handling of SIGINT
+def myExceptHook(etype, value, tb):
+	# For SIGINT: Don't print full info, it's legitimate.
+	if etype is KeyboardInterrupt:
+		print("\n<KeyboardInterrupt>")
+		return
+	# Fallback
+	better_exchook.better_exchook(etype, value, tb)
+
+sys.excepthook = myExceptHook
 
 
 IsPython2 = sys.version_info[0] <= 2
