@@ -93,7 +93,8 @@ def dump():
 	os.rename(tmpfilename, filename)
 	
 try:
-	dump()
+	if os.path.exists(os.path.expanduser("~/.version_info_dump.enabled")):
+		dump()
 except IOError:
 	# Permission denied or so.
 	# Silently ignore.
