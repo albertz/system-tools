@@ -83,7 +83,8 @@ def sysexec(*args, **kwargs):
 
 def sysexecOut(*args, **kwargs):
 	from subprocess import Popen, PIPE
-	p = Popen(args, shell=False, stdin=PIPE, stdout=PIPE, **kwargs)
+	kwargs.setdefault("shell", False)
+	p = Popen(args, stdin=PIPE, stdout=PIPE, **kwargs)
 	out, _ = p.communicate()
 	if p.returncode != 0: raise ShellError(p.returncode)
 	out = out.decode("utf-8")
