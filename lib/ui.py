@@ -5,6 +5,12 @@ import readline
 readline.parse_and_bind("tab: complete")
 readline.parse_and_bind("set show-all-if-ambiguous on")
 
+# Python 3 workaround
+try: raw_input
+except NameError: raw_input = input
+
+
+
 
 class Completer:
 	def __init__(self, words):
@@ -33,7 +39,7 @@ def userInputByChoice(words, prompt=""):
 	while True:
 		s = raw_input(prompt + "Choice of [%s] ? " % words_repr)
 		if s in words: return s
-		print "Error: '" + s + "' unknown, type again"
+		print("Error: %r unknown, type again" % s)
 
 def confirm(question):
 	while True:
@@ -73,6 +79,6 @@ class ConfirmByUserDeco(object):
 	def __call__(self, *args, **kwargs):
 		confirm("%s(%s)?" % (
 			getFuncName(self.func),
-			", ".join(map(userRepr, args) + ["%s=%r" % item for item in kwargs.items()])
+			", ".join(list(map(userRepr, args)) + ["%s=%r" % item for item in kwargs.items()])
 		))
 		return self.func(*args, **kwargs)

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-from utils import *
-import config
-import os, sys
+from lib.utils import *
+from lib import config
 
 
 def main(argv):

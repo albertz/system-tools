@@ -1,5 +1,5 @@
 
-from utils import CachedFunc0Deco
+from .utils import CachedFunc0Deco
 
 class Config:
 	def __init__(self, filename):
