@@ -62,7 +62,7 @@ class ShellError(Exception):
 	def __init__(self, res):
 		self.exitCode = res
 		assert self.exitCode != 0
-		super().__init__("exit code %i" % self.exitCode)
+		super(self).__init__("exit code %i" % self.exitCode)
 		
 @ui.ConfirmByUserDeco
 def shellcmd(cmd):
