@@ -81,6 +81,10 @@ def sysexec(*args, **kwargs):
 	res = subprocess.call(args, shell=False, **kwargs)
 	if res != 0: raise ShellError(res)
 
+def sysexecVerbose(*args, **kwargs):
+	print("sysexec: %s" % (args,))
+	return sysexec(*args, **kwargs)
+
 def sysexecOut(*args, **kwargs):
 	from subprocess import Popen, PIPE
 	kwargs.setdefault("shell", False)
