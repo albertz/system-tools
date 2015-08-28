@@ -190,6 +190,12 @@ def filenameRepr(filename, currentUser=False):
 	# Fallback.
 	return filename
 
+def shorten_str(s, max_len):
+	if len(s) > max_len:
+		return s[:max_len-3] + "..."
+	else:
+		return s
+
 
 def test_server(servername):
 	import subprocess
@@ -232,3 +238,4 @@ def get_ssh_fileurl(server, remotedir, homeremotedir=None):
 			assert homeremotedir[0:1] == "/"
 		remotedir = homeremotedir + "/" + remotedir
 	return "ssh://%s%s" % (server, remotedir)
+
