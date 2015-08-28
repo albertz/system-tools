@@ -63,7 +63,7 @@ class ShellError(Exception):
 		self.exitCode = res
 		assert self.exitCode != 0
 		super(ShellError, self).__init__("exit code %i" % self.exitCode)
-		
+
 @ui.ConfirmByUserDeco
 def shellcmd(cmd):
 	useshell=False
@@ -115,7 +115,7 @@ def git_headCommit(gitdir=None):
 def git_commitRev(commit="HEAD", gitdir="."):
 	if commit is None: commit = "HEAD"
 	return sysexecOut("git", "rev-parse", "--short", commit, cwd=gitdir).strip()
-	
+
 def git_isDirty(gitdir="."):
 	r = sysexecRetCode("git", "diff", "--no-ext-diff", "--quiet", "--exit-code", cwd=gitdir)
 	if r == 0: return False
@@ -165,7 +165,7 @@ def homesDir():
 	else:
 		# POSIX-like fallback
 		return "/home"
-	
+
 def loginUsername():
 	"""
 	Returns the username of the current user.
@@ -173,7 +173,7 @@ def loginUsername():
 	"""
 	import pwd, os
 	return pwd.getpwuid(os.getuid())[0]
-	
+
 def filenameRepr(filename, currentUser=False):
 	"Some os.path.expanduser filename representation."
 	homesdir = os.path.realpath(homesDir()) + "/"
@@ -189,7 +189,7 @@ def filenameRepr(filename, currentUser=False):
 			return prefix + filename[len(homedir):]
 	# Fallback.
 	return filename
-	
+
 
 def test_server(servername):
 	import subprocess
@@ -219,7 +219,7 @@ def test_remotedir(remotedir):
 def test(value, msg=None):
 	if not value:
 		raise AssertionError(*((msg,) if msg else ()))
-	
+
 def get_homeremotedir(server):
 	import subprocess
 	return subprocess.check_output(["ssh", server, "pwd"]).strip("\n")
