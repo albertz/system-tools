@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
 
-import readline
-readline.parse_and_bind("tab: complete")
-readline.parse_and_bind("set show-all-if-ambiguous on")
+try:
+	import readline
+except ImportError:
+	readline = None
+if readline:
+	readline.parse_and_bind("tab: complete")
+	readline.parse_and_bind("set show-all-if-ambiguous on")
 
 # Python 3 workaround
 try: raw_input
@@ -32,7 +36,8 @@ class Completer:
 WordsReprMaxLen = 40
 
 def userInputByChoice(words, prompt=""):
-	readline.set_completer(Completer(words).complete)
+	if readline:
+		readline.set_completer(Completer(words).complete)
 	words_repr = ", ".join(words)
 	if len(words_repr) > WordsReprMaxLen:
 		words_repr = words_repr[:WordsReprMaxLen] + "..."
