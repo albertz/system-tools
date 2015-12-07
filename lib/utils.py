@@ -239,3 +239,17 @@ def get_ssh_fileurl(server, remotedir, homeremotedir=None):
 		remotedir = homeremotedir + "/" + remotedir
 	return "ssh://%s%s" % (server, remotedir)
 
+
+def human_size(s, postfix="B", limit=0.9, base=1024, str_format=None):
+	p = ["", "K", "M", "G", "T"]
+	b = 1
+	i = 0
+	while i < len(p) - 1 and s * limit > b * base:
+		b *= base
+		i += 1
+	if str_format is None:
+		if isinstance(s, float) or i > 0:
+			str_format = "%.2f"
+		else:
+			str_format = "%i"
+	return str_format % ((s * 1.0) / b) + " %s%s" % (p[i], postfix)
