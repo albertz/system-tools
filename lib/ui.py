@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
+import sys
+
 try:
 	import readline
 except ImportError:
@@ -51,6 +53,14 @@ def confirm(question):
 		s = raw_input("%s Press enter to confirm or Ctrl+C otherwise." % question)
 		if s == "": return
 		print("Error: Don't type anything, just press enter.")
+
+def seriousConfirm(question):
+	while True:
+		s = raw_input("%s Type 'yes' to confirm." % question)
+		if s == "yes": return
+		if not s: continue
+		print("Invalid answer %r. Aborting." % s)
+		sys.exit(1)
 
 def userInput(prompt, testFunc):
 	while True:
