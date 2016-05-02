@@ -67,8 +67,10 @@ def main():
 	pipe = Pipe()
 	pipe.read = read
 	pipe.write = write
-	reader = Thread(name="reader", daemon=True, target=pipe.reader_loop)
-	writer = Thread(name="writer", daemon=True, target=pipe.writer_loop)
+	reader = Thread(name="reader", target=pipe.reader_loop)
+	writer = Thread(name="writer", target=pipe.writer_loop)
+	reader.daemon = True
+	writer.daemon = True
 	reader.start()
 	writer.start()
 	try:
