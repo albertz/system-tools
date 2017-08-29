@@ -296,6 +296,23 @@ class ObjAsDict:
         return "<ObjAsDict %r -> %r>" % (self.__obj, dict(self.items()))
 
 
+class classproperty(object):
+    """
+    https://stackoverflow.com/questions/5189699/how-to-make-a-class-property
+    """
+
+    def __init__(self, fget, fset=None):
+        if not isinstance(fget, (classmethod, staticmethod)):
+            fget = classmethod(fget)
+        self.fget = fget
+        self.fset = fset
+
+    def __get__(self, obj, klass=None):
+        if klass is None:
+            klass = type(obj)
+        return self.fget.__get__(obj, klass)()
+
+
 def custom_exec(source, source_filename, user_ns, user_global_ns):
     if not source.endswith("\n"):
         source += "\n"
