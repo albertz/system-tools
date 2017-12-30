@@ -29,9 +29,8 @@ def main():
     file_names = []  # type: list[str]
     dir_names = []  # type: list[str]
     for dir_path, sub_dir_names, sub_file_names in os.walk(args.path, topdown=False):
-        if os.path.samefile(dir_path, args.path):
-            continue
-        file_names += [os.path.join(dir_path, fn) for fn in sub_file_names]
+        if not os.path.samefile(dir_path, args.path):
+            file_names += [os.path.join(dir_path, fn) for fn in sub_file_names]
         dir_names += [os.path.join(dir_path, fn) for fn in sub_dir_names]
     print("Found %i files and %i directories." % (len(file_names), len(dir_names)))
     for fn in file_names:
