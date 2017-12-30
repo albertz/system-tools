@@ -68,35 +68,45 @@ class ShellError(Exception):
         assert self.exitCode != 0
         super(ShellError, self).__init__("exit code %i" % self.exitCode)
 
+
 @ui.ConfirmByUserDeco
 def shellcmd(cmd):
-    useshell=False
-    if type(cmd) is str: useshell=True
+    use_shell = False
+    if type(cmd) is str:
+        use_shell = True
     import subprocess
-    res = subprocess.call(cmd, shell=useshell)
-    if res != 0: raise ShellError(res)
+    res = subprocess.call(cmd, shell=use_shell)
+    if res != 0:
+        raise ShellError(res)
+
 
 @ui.ConfirmByUserDeco
 def pycmd(func, *args, **kwargs):
     return func(*args, **kwargs)
 
+
 def sysexec(*args, **kwargs):
     import subprocess
     res = subprocess.call(args, shell=False, **kwargs)
-    if res != 0: raise ShellError(res)
+    if res != 0:
+        raise ShellError(res)
+
 
 def sysexecVerbose(*args, **kwargs):
     print("sysexec: %s" % (args,))
     return sysexec(*args, **kwargs)
+
 
 def sysexecOut(*args, **kwargs):
     from subprocess import Popen, PIPE
     kwargs.setdefault("shell", False)
     p = Popen(args, stdin=PIPE, stdout=PIPE, **kwargs)
     out, _ = p.communicate()
-    if p.returncode != 0: raise ShellError(p.returncode)
+    if p.returncode != 0:
+        raise ShellError(p.returncode)
     out = out.decode("utf-8")
     return out
+
 
 def sysexecRetCode(*args, **kwargs):
     import subprocess
@@ -113,18 +123,25 @@ def git_topLevelDir(gitdir=None):
     test(os.path.isdir(d + "/.git"))
     return d
 
+
 def git_headCommit(gitdir=None):
     return sysexecOut("git",  "rev-parse", "--short", "HEAD", cwd=gitdir).strip()
 
+
 def git_commitRev(commit="HEAD", gitdir="."):
-    if commit is None: commit = "HEAD"
+    if commit is None:
+        commit = "HEAD"
     return sysexecOut("git", "rev-parse", "--short", commit, cwd=gitdir).strip()
+
 
 def git_isDirty(gitdir="."):
     r = sysexecRetCode("git", "diff", "--no-ext-diff", "--quiet", "--exit-code", cwd=gitdir)
-    if r == 0: return False
-    if r == 1: return True
-    test(False)
+    if r == 0:
+        return False
+    if r == 1:
+        return True
+    raise Exception("unexpected return code %r" % r)
+
 
 def git_commitDate(commit="HEAD", gitdir="."):
     return sysexecOut("git", "show", "-s", "--format=%ci", commit, cwd=gitdir).strip()[:-6].replace(":", "").replace("-", "").replace(" ", ".")
@@ -133,6 +150,7 @@ def git_commitDate(commit="HEAD", gitdir="."):
 def utc_datetime_str():
     from datetime import datetime
     return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
 
 def utc_datetime_filenamestr():
     from datetime import datetime
@@ -149,6 +167,7 @@ def make_symlink(src, dst):
     else:
         os.symlink(src, dst)
 
+
 def make_dir(dst, recursive=False):
     if not os.path.isdir(dst):
         print("Directory %r does not exist, create..." % dst)
@@ -157,18 +176,21 @@ def make_dir(dst, recursive=False):
         else:
             os.mkdir(dst)
 
+
 def tmp_filename():
-    "Some random string which is usable as (part of) a temporary filename."
+    """Some random string which is usable as (part of) a temporary filename."""
     import uuid
     return str(uuid.uuid4())
 
+
 def homesDir():
-    "Returns the base directory of user home directories."
+    """Returns the base directory of user home directories."""
     if sys.platform == "darwin":
         return "/Users"
     else:
         # POSIX-like fallback
         return "/home"
+
 
 def loginUsername():
     """
@@ -177,6 +199,7 @@ def loginUsername():
     """
     import pwd, os
     return pwd.getpwuid(os.getuid())[0]
+
 
 def filenameRepr(filename, currentUser=False):
     "Some os.path.expanduser filename representation."
@@ -194,6 +217,7 @@ def filenameRepr(filename, currentUser=False):
     # Fallback.
     return filename
 
+
 def shorten_str(s, max_len):
     if len(s) > max_len:
         return s[:max_len-3] + "..."
@@ -206,6 +230,7 @@ def test_server(servername):
     res = subprocess.call("ping -c 1 %s >/dev/null" % servername, shell=True)
     assert res == 0
     return True
+
 
 def test_remotedir(remotedir):
     import urlparse
@@ -225,14 +250,17 @@ def test_remotedir(remotedir):
     assert res == 0
     return True
 
+
 # This is just like `assert`, except that it will not be optimized away.
 def test(value, msg=None):
     if not value:
         raise AssertionError(*((msg,) if msg else ()))
 
+
 def get_homeremotedir(server):
     import subprocess
     return subprocess.check_output(["ssh", server, "pwd"]).strip("\n")
+
 
 def get_ssh_fileurl(server, remotedir, homeremotedir=None):
     assert remotedir != ""
