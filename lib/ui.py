@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-
+from __future__ import print_function
 import sys
 
 try:
@@ -84,21 +84,11 @@ def userInput(prompt, testFunc):
             return s
 
 
-# This is here in `ui` because it returns always some string
-# which is only intended for a user and does not mean anything
-# otherwise.
-def getFuncName(func):
-    if hasattr(func, "func_name"):
-        return func.func_name
-    if hasattr(func, "__name__"):
-        return func.__name__
-    return str(func)
-
-
 def userRepr(arg):
     import inspect
+    from .utils import get_func_name
     if inspect.isroutine(arg):
-        return getFuncName(arg)
+        return get_func_name(arg)
     return repr(arg)
 
 
@@ -107,8 +97,67 @@ class ConfirmByUserDeco(object):
         self.func = func
 
     def __call__(self, *args, **kwargs):
+        from .utils import get_func_name
         confirm("%s(%s)?" % (
-            getFuncName(self.func),
+            get_func_name(self.func),
             ", ".join(list(map(userRepr, args)) + ["%s=%r" % item for item in kwargs.items()])
         ))
         return self.func(*args, **kwargs)
+
+
+class ConfirmByUserOptOnce:
+    def __init__(self, func=None, prompt=None, dry_run=False, verbose=False, confirmed=False):
+        self.func = func
+        self.confirmed_always = confirmed
+        self.prompt = prompt
+        self.dry_run = dry_run
+        self.verbose = verbose
+
+    def confirm(self, prompt=None):
+        """
+        :param str prompt:
+        """
+        if prompt is None:
+            prompt = self.prompt or "Confirm?"
+        if prompt and not prompt.endswith(" "):
+            prompt += " "
+        if self.confirmed_always:
+            return
+        res = userInputByChoice(words=["", "yes", "always", "no"], prompt=prompt)
+        if res == "no":
+            raise KeyboardInterrupt
+        elif res == "always":
+            self.confirmed_always = True
+        else:
+            assert res in ["", "yes"]
+
+    def __call__(self, *args, **kwargs):
+        from .utils import format_func_call
+        if self.dry_run:
+            if self.prompt:
+                print(self.prompt, end=" ")
+            print("Dry-run, not executing %s." % format_func_call(self.func, args, kwargs))
+            return
+        self.confirm()
+        if self.verbose:
+            print("Call %s." % format_func_call(self.func, args, kwargs))
+        return self.func(*args, **kwargs)
+
+    def call_custom(self, func, args=(), kwargs=None, prompt=None):
+        from .utils import format_func_call
+        if self.dry_run:
+            if prompt or self.prompt:
+                print(prompt or self.prompt, end=" ")
+            print("Dry-run, not executing %s." % format_func_call(func, args, kwargs))
+            return
+        if not prompt:
+            if self.prompt:
+                prompt = self.prompt
+            else:
+                prompt = "Confirm call %s?" % format_func_call(func, args, kwargs)
+        self.confirm(prompt=prompt)
+        if kwargs is None:
+            kwargs = {}
+        if self.verbose:
+            print("Call %s." % format_func_call(func, args, kwargs))
+        return func(*args, **kwargs)

@@ -367,3 +367,18 @@ def load_config_py(filename, config_dict=None):
     if user_ns is not config_dict:
         config_dict.update(user_ns)
     return config_dict
+
+
+def get_func_name(func):
+    if hasattr(func, "func_name"):
+        return func.func_name
+    if hasattr(func, "__name__"):
+        return func.__name__
+    return str(func)
+
+
+def format_func_call(func, args=(), kwargs=None):
+    func_args_str = ", ".join([repr(a) for a in args])
+    if kwargs:
+        func_args_str += ", " + ", ".join(["%s=%r" % (k, v) for (k, v) in kwargs])
+    return "%s(%s)" % (get_func_name(func), func_args_str)
