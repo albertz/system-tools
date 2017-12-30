@@ -42,8 +42,11 @@ def main():
         target_fn = os.path.join(args.target_dir, target_fn)
         assert not os.path.exists(target_fn)
         confirm.call_custom(shutil.move, (fn, target_fn))
-    for fn in dir_names:
-        confirm.call_custom(os.rmdir, (fn,))
+    if args.no_dir_deletion:
+        print("No directory deletion as requested.")
+    else:
+        for fn in dir_names:
+            confirm.call_custom(os.rmdir, (fn,))
     print("Done.")
 
 
