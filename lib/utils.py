@@ -233,8 +233,12 @@ def test_server(servername):
 
 
 def test_remotedir(remotedir):
-    import urlparse
-    o = urlparse.urlparse(remotedir)
+    if IsPython2:
+        # noinspection PyUnresolvedReferences
+        from urlparse import urlparse
+    else:
+        from urllib.parse import urlparse
+    o = urlparse(remotedir)
     assert o.scheme == "ssh"
     assert test_server(o.hostname)
     args = ["ssh", o.hostname]
