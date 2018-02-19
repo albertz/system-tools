@@ -54,7 +54,12 @@ def userInputByChoice(words, prompt=""):
         print("Error: %r unknown, type again" % s)
 
 
+AllConfirmed = False
+
+
 def confirm(question):
+    if AllConfirmed:
+        return
     while True:
         s = raw_input("%s Press enter to confirm or Ctrl+C otherwise." % question)
         if s == "":
@@ -63,6 +68,8 @@ def confirm(question):
 
 
 def seriousConfirm(question):
+    if AllConfirmed:
+        return
     while True:
         s = raw_input("%s Type 'yes' to confirm." % question)
         if s == "yes":
@@ -98,10 +105,11 @@ class ConfirmByUserDeco(object):
 
     def __call__(self, *args, **kwargs):
         from .utils import get_func_name
-        confirm("%s(%s)?" % (
-            get_func_name(self.func),
-            ", ".join(list(map(userRepr, args)) + ["%s=%r" % item for item in kwargs.items()])
-        ))
+        if not AllConfirmed:
+            confirm("%s(%s)?" % (
+                get_func_name(self.func),
+                ", ".join(list(map(userRepr, args)) + ["%s=%r" % item for item in kwargs.items()])
+            ))
         return self.func(*args, **kwargs)
 
 
@@ -121,6 +129,8 @@ class ConfirmByUserOptOnce:
             prompt = self.prompt or "Confirm?"
         if prompt and not prompt.endswith(" "):
             prompt += " "
+        if AllConfirmed:
+            return
         if self.confirmed_always:
             return
         res = userInputByChoice(words=["", "yes", "always", "no"], prompt=prompt)
