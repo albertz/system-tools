@@ -34,7 +34,8 @@ def get_ld_paths():
     # - /etc/ld.so.cache (instead we will parse /etc/ld.so.conf)
     # - /lib, /usr/lib (or maybe /lib64, /usr/lib64)
     paths = []
-    paths.extend(os.environ["LD_LIBRARY_PATH"].split(":"))
+    if "LD_LIBRARY_PATH" in os.environ:
+        paths.extend(os.environ["LD_LIBRARY_PATH"].split(":"))
     paths.extend(parse_ld_conf_file("/etc/ld.so.conf"))
     paths.extend(["/lib", "/usr/lib", "/lib64", "/usr/lib64"])
     return paths
