@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+Suspend/resume the Chrome process (via SIGSTOP/SIGCONT).
+This can save you a couple of hours of battery.
+"""
+
 import sys
-import os
-import subprocess
 import psutil
 import better_exchook
 
