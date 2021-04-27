@@ -1,12 +1,16 @@
 
 import os
 import sys
+from typing import List, Tuple, TypeVar
 from . import ui
 
 # It's bad practice to have an import-sideeffect.
 # However, these are anyway only small helper tools and this is useful.
 
 from . import better_exchook
+
+
+T = TypeVar("T")
 
 
 # Special handling of SIGINT
@@ -559,3 +563,45 @@ def longest_common_subsequence_distance(a, b):
     """
     return len(a) + len(b) - 2 * len(longest_common_subsequence(a, b))
 
+
+def min_edit_change(s: List[T], t: List[T]) -> Tuple[List[str]]:
+    # degenerate cases
+    if s == t:
+        return 0
+    if len(s) == 0:
+        return len(t)
+    if len(t) == 0:
+        return len(s)
+
+    # create two work vectors of integer distances.
+    # will get len(v0) = len(v1) = len(t) + 1.
+    v0 = []
+    v1 = []
+
+    # initialize v0 (the previous row of distances)
+    # this row is A[0][i]: edit distance for an empty s
+    # the distance is just the number of characters to delete from t
+    for i in range(len(t) + 1):
+        v0.append([f"+{t[j]}" for j in range(i)])
+        v1.append([])
+
+    for i in range(len(s)):
+        # calculate v1 (current row distances) from the previous row v0
+        # first element of v1 is A[i+1][0]
+        # edit distance is delete (i+1) chars from s to match empty t
+        v1[0] = [f"-{s[j]}" for j in range(i + 1)]
+
+        # use formula to fill in the rest of the row
+        for j in range(len(t)):
+            cost = [] if s[i] == t[j] else [f"-{s[i]}+{t[j]}"]
+            v1[j + 1] = min(
+                v1[j] + [f"+{t[j]}"],
+                v0[j + 1] + [f"-{s[i]}"],
+                v0[j] + cost,
+                key=len)
+
+        # copy v1 (current row) to v0 (previous row) for next iteration
+        for j in range(len(t) + 1):
+            v0[j] = v1[j]
+
+    return v1[len(t)]
