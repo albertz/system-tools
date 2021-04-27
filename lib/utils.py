@@ -1,5 +1,6 @@
 
-import os, sys
+import os
+import sys
 from . import ui
 
 # It's bad practice to have an import-sideeffect.
@@ -7,16 +8,21 @@ from . import ui
 
 from . import better_exchook
 
+
 # Special handling of SIGINT
-def myExceptHook(etype, value, tb):
+def _my_except_hook(etype, value, tb):
     # For SIGINT: Don't print full info, it's legitimate.
     if etype is KeyboardInterrupt:
-        print("\n<KeyboardInterrupt>")
-        return
+        if os.environ.get("DEBUG_SIGINT", "") == "1":
+            print("\n<KeyboardInterrupt> (debug mode)")
+        else:
+            print("\n<KeyboardInterrupt> (set DEBUG_SIGINT=1 for stacktrace)")
+            return
     # Fallback
     better_exchook.better_exchook(etype, value, tb)
 
-sys.excepthook = myExceptHook
+
+sys.excepthook = _my_except_hook
 
 
 IsPython2 = sys.version_info[0] <= 2
@@ -29,6 +35,7 @@ if IsPython3:
 class CachedFunc0Deco(object):
     def __init__(self, func):
         self.func = func
+
     def __call__(self):
         self.value = self.func()
         self.__call__ = lambda: self.value
@@ -169,6 +176,10 @@ def make_symlink(src, dst):
 
 
 def make_dir(dst, recursive=False):
+    """
+    :param str dst:
+    :param bool recursive:
+    """
     if not os.path.isdir(dst):
         print("Directory %r does not exist, create..." % dst)
         if recursive:
@@ -178,13 +189,19 @@ def make_dir(dst, recursive=False):
 
 
 def tmp_filename():
-    """Some random string which is usable as (part of) a temporary filename."""
+    """
+    :return: Some random string which is usable as (part of) a temporary filename.
+    :rtype: str
+    """
     import uuid
     return str(uuid.uuid4())
 
 
 def homesDir():
-    """Returns the base directory of user home directories."""
+    """
+    :return: the base directory of user home directories.
+    :rtype: str
+    """
     if sys.platform == "darwin":
         return "/Users"
     else:
@@ -194,8 +211,8 @@ def homesDir():
 
 def loginUsername():
     """
-    Returns the username of the current user.
-    Use this as a replacement for os.getlogin().
+    :return: the username of the current user. Use this as a replacement for os.getlogin().
+    :rtype: str
     """
     import pwd, os
     return pwd.getpwuid(os.getuid())[0]
@@ -219,6 +236,11 @@ def filenameRepr(filename, currentUser=False):
 
 
 def shorten_str(s, max_len):
+    """
+    :param str s:
+    :param int max_len:
+    :rtype: str
+    """
     if len(s) > max_len:
         return s[:max_len-3] + "..."
     else:
@@ -226,6 +248,10 @@ def shorten_str(s, max_len):
 
 
 def test_server(servername):
+    """
+    :param str servername:
+    :rtype: bool
+    """
     import subprocess
     res = subprocess.call("ping -c 1 %s >/dev/null" % servername, shell=True)
     assert res == 0
@@ -233,10 +259,15 @@ def test_server(servername):
 
 
 def test_remotedir(remotedir):
+    """
+    :param str remotedir:
+    :rtype: bool
+    """
     if IsPython2:
-        # noinspection PyUnresolvedReferences
+        # noinspection PyUnresolvedReferences,PyCompatibility
         from urlparse import urlparse
     else:
+        # noinspection PyCompatibility
         from urllib.parse import urlparse
     o = urlparse(remotedir)
     assert o.scheme == "ssh"
@@ -328,6 +359,7 @@ class ObjAsDict:
         return "<ObjAsDict %r -> %r>" % (self.__obj, dict(self.items()))
 
 
+# noinspection PyPep8Naming,SpellCheckingInspection
 class classproperty(object):
     """
     https://stackoverflow.com/questions/5189699/how-to-make-a-class-property
@@ -354,6 +386,12 @@ def custom_exec(source, source_filename, user_ns, user_global_ns):
 
 
 def load_config_py(filename, config_dict=None):
+    """
+    :param str filename:
+    :param dict[str]|ObjAsDict|None config_dict: if given, will update inplace
+    :return: config_dict (same instance)
+    :rtype: dict[str]
+    """
     content = open(filename).read()
     if config_dict is None:
         config_dict = {}
@@ -370,6 +408,10 @@ def load_config_py(filename, config_dict=None):
 
 
 def get_func_name(func):
+    """
+    :param function|callable func:
+    :rtype: str
+    """
     if hasattr(func, "func_name"):
         return func.func_name
     if hasattr(func, "__name__"):
@@ -378,7 +420,142 @@ def get_func_name(func):
 
 
 def format_func_call(func, args=(), kwargs=None):
+    """
+    :param function func:
+    :param tuple args:
+    :param dict[str]|None kwargs:
+    :rtype: str
+    """
     func_args_str = ", ".join([repr(a) for a in args])
     if kwargs:
         func_args_str += ", " + ", ".join(["%s=%r" % (k, v) for (k, v) in kwargs])
     return "%s(%s)" % (get_func_name(func), func_args_str)
+
+
+def parse_time(t):
+    """
+    :param str t:
+    :rtype: int
+    """
+    ts = t.split(":")
+    if len(ts) == 1:
+        return int(t)
+    elif len(ts) == 2:
+        return int(ts[1]) + 60 * int(ts[0])
+    elif len(ts) == 3:
+        return int(ts[2]) + 60 * int(ts[1]) + 60 * 60 * int(ts[0])
+    assert False, t
+
+
+def repr_time(t):
+    """
+    :param int|float t: in seconds
+    :rtype: str
+    """
+    hh, mm, ss = t / (60 * 60), (t / 60) % 60, t % 60
+    return "%i:%02i:%02i" % (hh, mm, ss)
+
+
+def repr_time_mins(t):
+    """
+    :param int|float t: in seconds
+    :rtype: str
+    """
+    if t == float("inf"):
+        return "inf"
+    t = round(t / 60.0) * 60
+    hh, mm, ss = t / (60 * 60), (t / 60) % 60, t % 60
+    return "%i:%02ih" % (hh, mm)
+
+
+def avoid_wiki_link(s):
+    """
+    :param str s:
+    :rtype: str
+    """
+    if s[0:1].isupper() and s[1:2].islower():
+        for c in s[2:]:
+            if c.isspace():
+                break
+            if c.isupper():
+                return "!%s" % s
+    return s
+
+
+# A fast and memory efficient implementation
+# by Hjelmqvist, Sten
+# https://davejingtian.org/2015/05/02/python-levenshtein-distance-choose-python-package-wisely/
+def levenshtein_distance(s, t):
+    # degenerate cases
+    if s == t:
+        return 0
+    if len(s) == 0:
+        return len(t)
+    if len(t) == 0:
+        return len(s)
+
+    # create two work vectors of integer distances
+    #int[] v0 = new int[t.Length + 1];
+    #int[] v1 = new int[t.Length + 1];
+    v0 = []
+    v1 = []
+
+    # initialize v0 (the previous row of distances)
+    # this row is A[0][i]: edit distance for an empty s
+    # the distance is just the number of characters to delete from t
+    # for (int i = 0; i < v0.Length; i++)
+    # v0[i] = i;
+    for i in range(len(t)+1):
+        v0.append(i)
+        v1.append(0)
+
+    for i in range(len(s)):
+        # calculate v1 (current row distances) from the previous row v0
+        # first element of v1 is A[i+1][0]
+        # edit distance is delete (i+1) chars from s to match empty t
+        v1[0] = i + 1
+
+        # use formula to fill in the rest of the row
+        for j in range(len(t)):
+            cost = 0 if s[i] == t[j] else 1
+            v1[j + 1] = min(v1[j]+1, v0[j+1]+1, v0[j]+cost)
+
+        # copy v1 (current row) to v0 (previous row) for next iteration
+        for j in range(len(t)+1):
+            v0[j] = v1[j]
+
+    return v1[len(t)]
+
+
+# http://rosettacode.org/wiki/Longest_common_subsequence#Python
+def longest_common_subsequence(a, b):
+    lengths = [[0 for j in range(len(b)+1)] for i in range(len(a)+1)]
+    # row 0 and column 0 are initialized to 0 already
+    for i, x in enumerate(a):
+        for j, y in enumerate(b):
+            if x == y:
+                lengths[i+1][j+1] = lengths[i][j] + 1
+            else:
+                lengths[i+1][j+1] = max(lengths[i+1][j], lengths[i][j+1])
+    # read the substring out from the matrix
+    result = []
+    x, y = len(a), len(b)
+    while x != 0 and y != 0:
+        if lengths[x][y] == lengths[x-1][y]:
+            x -= 1
+        elif lengths[x][y] == lengths[x][y-1]:
+            y -= 1
+        else:
+            assert a[x-1] == b[y-1]
+            result = [a[x-1]] + result
+            x -= 1
+            y -= 1
+    return result
+
+
+def longest_common_subsequence_distance(a, b):
+    """
+    like levenshtein_distance but substitutions are not allowed
+    """
+    return len(a) + len(b) - 2 * len(longest_common_subsequence(a, b))
+
