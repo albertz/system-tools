@@ -582,21 +582,21 @@ def min_edit_change(s: List[T], t: List[T]) -> Tuple[List[str]]:
     # this row is A[0][i]: edit distance for an empty s
     # the distance is just the number of characters to delete from t
     for i in range(len(t) + 1):
-        v0.append([f"+{t[j]}" for j in range(i)])
+        v0.append(["+" + str(t[j]) for j in range(i)])
         v1.append([])
 
     for i in range(len(s)):
         # calculate v1 (current row distances) from the previous row v0
         # first element of v1 is A[i+1][0]
         # edit distance is delete (i+1) chars from s to match empty t
-        v1[0] = [f"-{s[j]}" for j in range(i + 1)]
+        v1[0] = ["-" + str(s[j]) for j in range(i + 1)]
 
         # use formula to fill in the rest of the row
         for j in range(len(t)):
-            cost = [] if s[i] == t[j] else [f"-{s[i]}+{t[j]}"]
+            cost = [] if s[i] == t[j] else ["-" + str(s[i]) + "+" + str(t[j])]
             v1[j + 1] = min(
-                v1[j] + [f"+{t[j]}"],
-                v0[j + 1] + [f"-{s[i]}"],
+                v1[j] + ["+" + str(t[j])],
+                v0[j + 1] + ["-" + str(s[i])],
                 v0[j] + cost,
                 key=len)
 
