@@ -9,6 +9,8 @@ import os
 from argparse import ArgumentParser
 from glob import glob
 
+PREFIX = os.getenv('PREFIX') # Termux
+
 
 def parse_ld_conf_file(fn):
     paths = []
@@ -36,14 +38,19 @@ def get_ld_paths():
     paths = []
     if "LD_LIBRARY_PATH" in os.environ:
         paths.extend(os.environ["LD_LIBRARY_PATH"].split(":"))
-    paths.extend(parse_ld_conf_file("/etc/ld.so.conf"))
+    if os.path.exists("/etc/ld.so.conf"):
+        paths.extend(parse_ld_conf_file("/etc/ld.so.conf"))
+    else:
+        print("WARNING: file \"/etc/ld.so.conf\" not found.")
+    if PREFIX:
+        paths.extend([PREFIX, PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/lib64", PREFIX + "/usr/lib64"])
     paths.extend(["/lib", "/usr/lib", "/lib64", "/usr/lib64"])
     return paths
 
 
 def main():
     arg_parser = ArgumentParser()
-    arg_parser.add_argument("lib")
+    arg_parser.add_argument("lib", help="Name of the library (e.g. libncurses.so)")
     args = arg_parser.parse_args()
 
     paths = get_ld_paths()
@@ -59,4 +66,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
