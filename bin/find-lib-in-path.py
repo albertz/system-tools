@@ -4,6 +4,7 @@
 Like `type` but for libs.
 """
 
+from __future__ import print_function
 import sys
 import os
 from argparse import ArgumentParser
