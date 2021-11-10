@@ -11,7 +11,6 @@ import sys
 import os
 
 
-
 def parse_ld_conf_file(fn):
     paths = []
     for l in open(fn).read().splitlines():
@@ -41,7 +40,11 @@ def get_ld_paths():
     if LDPATH: 
         paths.extend(LDPATH.split(":"))
     if PREFIX:
-        paths.extend([PREFIX, PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/lib64", PREFIX + "/usr/lib64"])
+        paths.extend([PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/lib64", PREFIX + "/usr/lib64"])
+        if os.path.exists(PREFIX + "/etc/ld.so.conf"):
+            paths.extend(parse_ld_conf_file(PREFIX + "/etc/ld.so.conf"))
+        else:
+            print("WARNING: file \"" + PREFIX + "/etc/ld.so.conf\" not found.")
     if os.path.exists("/etc/ld.so.conf"):
         paths.extend(parse_ld_conf_file("/etc/ld.so.conf"))
     else:
