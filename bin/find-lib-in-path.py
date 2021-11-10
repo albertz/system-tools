@@ -5,12 +5,11 @@ Like `type` but for libs.
 """
 
 from __future__ import print_function
-import sys
-import os
 from argparse import ArgumentParser
 from glob import glob
+import sys
+import os
 
-PREFIX = os.getenv('PREFIX') # Termux
 
 
 def parse_ld_conf_file(fn):
@@ -36,16 +35,13 @@ def get_ld_paths():
     # - LD_LIBRARY_PATH
     # - /etc/ld.so.cache (instead we will parse /etc/ld.so.conf)
     # - /lib, /usr/lib (or maybe /lib64, /usr/lib64)
+    PREFIX = os.getenv("PREFIX") # Termux & etc.
+    LDPATH = os.getenv("LD_LIBRARY_PATH") 
     paths = []
-    if "LD_LIBRARY_PATH" in os.environ:
-        paths.extend(os.environ["LD_LIBRARY_PATH"].split(":"))
-    if os.path.exists("/etc/ld.so.conf"):
-        paths.extend(parse_ld_conf_file("/etc/ld.so.conf"))
-    else:
-        print("WARNING: file \"/etc/ld.so.conf\" not found.")
-    if PREFIX:
-        paths.extend([PREFIX, PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/lib64", PREFIX + "/usr/lib64"])
-    paths.extend(["/lib", "/usr/lib", "/lib64", "/usr/lib64"])
+    paths.extend(LDPATH.split(":")) if LDPATH else None 
+    paths.extend(["/lib", "/usr/lib", "/lib64", "/usr/lib64"]) 
+    paths.extend([PREFIX, PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/lib64", PREFIX + "/usr/lib64"]) if PREFIX else None
+    paths.extend(parse_ld_conf_file("/etc/ld.so.conf")) if os.path.exists("/etc/ld.so.conf") else print('WARNING: file "/etc/ld.so.conf" not found.')
     return paths
 
 
