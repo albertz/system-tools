@@ -34,21 +34,22 @@ def get_ld_paths():
     # - LD_LIBRARY_PATH
     # - /etc/ld.so.cache (instead we will parse /etc/ld.so.conf)
     # - /lib, /usr/lib (or maybe /lib64, /usr/lib64)
-    PREFIX = os.getenv("PREFIX") # Termux & etc.
     LDPATH = os.getenv("LD_LIBRARY_PATH") 
-    paths = ["/lib", "/usr/lib", "/lib64", "/usr/lib64"]
+    PREFIX = os.getenv("PREFIX") # Termux & etc.
+    paths = []
     if LDPATH: 
         paths.extend(LDPATH.split(":"))
-    if PREFIX:
-        paths.extend([PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/lib64", PREFIX + "/usr/lib64"])
-        if os.path.exists(PREFIX + "/etc/ld.so.conf"):
-            paths.extend(parse_ld_conf_file(PREFIX + "/etc/ld.so.conf"))
-        else:
-            print("WARNING: file \"" + PREFIX + "/etc/ld.so.conf\" not found.")
     if os.path.exists("/etc/ld.so.conf"):
         paths.extend(parse_ld_conf_file("/etc/ld.so.conf"))
     else:
-        print("WARNING: file \"/etc/ld.so.conf\" not found.")
+        print('WARNING: file "/etc/ld.so.conf" not found.')
+    if PREFIX:
+        if os.path.exists(PREFIX + "/etc/ld.so.conf"):
+            paths.extend(parse_ld_conf_file(PREFIX + "/etc/ld.so.conf"))
+        else:
+            print('WARNING: file "' + PREFIX + '/etc/ld.so.conf" not found.')
+        paths.extend([PREFIX + "/lib", PREFIX + "/usr/lib", PREFIX + "/lib64", PREFIX + "/usr/lib64"])
+    paths.extend(["/lib", "/usr/lib", "/lib64", "/usr/lib64"])
     return paths
 
 
