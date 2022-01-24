@@ -20,7 +20,10 @@ def parse_ld_conf_file(fn):
         if l.startswith("#"):
             continue
         if l.startswith("include "):
-            for sub_fn in glob(l[len("include "):]):
+            dirglob = l[len("include "):]
+            if dirglob[0] != "/":
+                dirglob = os.path.dirname(os.path.normpath(fn)) + "/" + dirglob
+            for sub_fn in glob(dirglob):
                 paths.extend(parse_ld_conf_file(sub_fn))
             continue
         paths.append(l)
