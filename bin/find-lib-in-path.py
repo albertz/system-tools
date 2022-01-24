@@ -22,9 +22,7 @@ def parse_ld_conf_file(fn):
         if l.startswith("include "):
             dirglob = l[len("include "):]
             if dirglob[0] != "/":
-                patharray = os.path.normpath(fn).split(os.sep)
-                relpath = os.sep.join(patharray[0:len(patharray)-1])
-                dirglob = relpath + "/" + dirglob
+                dirglob = os.path.dirname(os.path.normpath(fn)) + "/" + dirglob
             for sub_fn in glob(dirglob):
                 paths.extend(parse_ld_conf_file(sub_fn))
             continue
