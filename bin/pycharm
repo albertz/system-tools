@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+
+from typing import Optional, Set
+import os
+import sys
+import argparse
+import importlib
+
+
+_my_bin = os.path.abspath(__file__)
+
+
+def which(name: str, *, exclude: Set[str] = set()) -> Optional[str]:
+    """
+    Finds `program` in some of the dirs of the PATH env var.
+
+    :return: full path, e.g. "/usr/bin/python", or None
+    """
+    def is_exe(path: str) -> str:
+        return os.path.isfile(path) and os.access(path, os.X_OK)
+
+    fpath, _ = os.path.split(name)
+    if fpath:
+        if is_exe(name) and name not in exclude:
+            return name
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, name)
+            if is_exe(exe_file) and exe_file not in exclude:
+                return exe_file
+    return None
+
+
+def exec_python_module_from_file(filename: str):
+    # https://stackoverflow.com/questions/67631/how-do-i-import-a-module-given-the-full-path
+    module_name = filename  # does not matter
+    spec = importlib.util.spec_from_file_location(module_name, filename)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = mod
+    spec.loader.exec_module(mod)
+
+
+def main():
+    arg_parser = argparse.ArgumentParser(add_help=False)
+    arg_parser.add_argument("--strace-file", action="store_true")
+    arg_parser.add_argument("--help", action="store_true")
+    args, remaining_args = arg_parser.parse_known_args()
+
+    print("PyCharm starter helper script")
+
+    if args.help:
+        arg_parser.print_help()
+        # anyway continue to also maybe print help for pycharm
+        remaining_args.append('--help')
+        # actually do not because the pycharm binary does not seem to support --help..
+        # maybe remove this later?
+        sys.exit(0)
+
+    print("* current dir:", os.getcwd())
+
+    orig_pycharm_bin = which("pycharm", exclude={_my_bin})
+    assert orig_pycharm_bin, "pycharm not found"
+
+    exec_args = [orig_pycharm_bin] + remaining_args
+
+    if os.path.exists('.pycharm-startup.py'):
+        print("* running .pycharm-startup.py")
+        exec_python_module_from_file('.pycharm-startup.py')
+
+    if args.strace_file:
+        print("* using strace")
+        exec_args = ["strace", "-e", "trace=file", "-f"] + exec_args
+
+    print("* exec:", " ".join(exec_args))
+    os.execlp(exec_args[0], *exec_args)
+
+
+if __name__ == "__main__":
+    main()
