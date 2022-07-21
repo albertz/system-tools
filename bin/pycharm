@@ -64,9 +64,9 @@ def main():
 
     exec_args = [orig_pycharm_bin] + remaining_args
 
-    if os.path.exists('.pycharm-startup.py'):
-        print("* running .pycharm-startup.py")
-        exec_python_module_from_file('.pycharm-startup.py')
+    if os.path.exists(os.path.expanduser('~/.pycharm-startup.py')):
+        print("* running ~/.pycharm-startup.py")
+        exec_python_module_from_file(os.path.expanduser('~/.pycharm-startup.py'))
 
     if args.strace_file:
         print("* using strace")
