@@ -73,6 +73,7 @@ def main():
         exec_args = ["strace", "-e", "trace=file", "-f"] + exec_args
 
     print("* exec:", " ".join(exec_args))
+    sys.stdout.flush()
     os.execlp(exec_args[0], *exec_args)
 
 
