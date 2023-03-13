@@ -70,7 +70,7 @@ def main():
 
     if args.strace_file:
         print("* using strace")
-        exec_args = ["strace", "-e", "trace=file", "-f"] + exec_args
+        exec_args = ["strace", "-e", "trace=file", "-f", "-T"] + exec_args
 
     print("* exec:", " ".join(exec_args))
     sys.stdout.flush()
