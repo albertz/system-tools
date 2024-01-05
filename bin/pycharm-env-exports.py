@@ -17,6 +17,10 @@ def exec_python_module_from_file(filename: str):
 
 
 def main():
+    # https://youtrack.jetbrains.com/issue/GTW-7289, https://youtrack.jetbrains.com/issue/GTW-2119
+    # ZSH might cause problems, use Bash instead.
+    print("export SHELL=/bin/bash")
+
     if not os.path.exists(os.path.expanduser('~/.pycharm-startup.py')):
         return
 
