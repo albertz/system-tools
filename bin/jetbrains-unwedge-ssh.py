@@ -146,16 +146,25 @@ def agent_update_in_progress(host: str) -> bool:
     captures = sorted(host_ssh_captures(host), key=lambda p: p.stat().st_mtime)
     if not captures:
         return False
-    recent = [p for p in captures[-4:]
-              if datetime.fromtimestamp(p.stat().st_mtime) > datetime.now() - timedelta(hours=1)]
-    for path in recent:
-        text = path.read_text(errors="replace")
-        if "UnsupportedClassVersionError" in text:
-            print(f"  NOTE: {path.name} shows UnsupportedClassVersionError -- "
-                  "the remote agent is being updated (needs a newer JVM than the node's). "
-                  "This is transient: wait for the download to finish, do not kill anything.")
-            return True
-    return False
+    newest = captures[-1]
+    if datetime.fromtimestamp(newest.stat().st_mtime) < datetime.now() - timedelta(hours=1):
+        return False
+    # the JVM probe logs UnsupportedClassVersionError for the node's own JVMs
+    # on every deploy, successful ones included,
+    # so the error alone means nothing -- what counts is whether the deploy finished
+    out = newest.with_suffix(".out")
+    finished = out.exists() and (
+        "~RESULT" in out.read_text(errors="replace")
+        or "self-check successful" in out.read_text(errors="replace"))
+    if finished:
+        return False
+    if "UnsupportedClassVersionError" not in newest.read_text(errors="replace"):
+        return False
+    print(f"  NOTE: last deploy ({newest.name}) did not finish, "
+          "and no JVM on the node can run the agent "
+          "(UnsupportedClassVersionError) -- the remote agent is being updated. "
+          "This is transient: wait for the download to finish, do not kill anything.")
+    return True
 
 
 def host_ssh_captures(host: str) -> List[Path]:
